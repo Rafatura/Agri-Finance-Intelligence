@@ -304,3 +304,102 @@ footer {
     }
 }
 
+
+/* Estilos para mudanças de preço */
+.change {
+    font-size: 0.8em;
+    font-weight: 600;
+    margin-left: 5px;
+}
+
+.change.positive {
+    color: var(--primary-color);
+}
+
+.change.negative {
+    color: #ff6b6b;
+}
+
+.change.neutral {
+    color: #888888;
+}
+
+/* Estilos para dados climáticos */
+.region {
+    color: var(--primary-color);
+    font-weight: 600;
+    text-transform: capitalize;
+}
+
+.temp {
+    color: #ff9800;
+    font-weight: 600;
+}
+
+.forecast {
+    color: #4fc3f7;
+    font-weight: 600;
+}
+
+/* Estilos para volume e análise */
+.volume {
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+.market-summary {
+    margin-top: 15px;
+    padding: 10px;
+    background-color: var(--secondary-color);
+    border-radius: 5px;
+    border-left: 3px solid var(--primary-color);
+    font-size: 0.9em;
+}
+
+/* Taxas de conversão */
+.conversion-rates {
+    margin-top: 15px;
+    padding: 10px;
+    background-color: var(--secondary-color);
+    border-radius: 4px;
+    font-size: 0.8em;
+    color: #cccccc;
+}
+
+/* Rede blockchain */
+.network {
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+/* Loading states */
+.loading {
+    opacity: 0.7;
+    pointer-events: none;
+}
+
+/* Timestamps */
+small {
+    color: #888888;
+    font-size: 0.75em;
+    display: block;
+    margin-top: 5px;
+}
+
+/* Melhorias para botões secundários */
+.btn-secondary {
+    margin-right: 5px;
+    margin-bottom: 5px;
+}
+
+/* Animação de loading */
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
+}
+
+.loading-text {
+    animation: pulse 1.5s infinite;
+}
+

@@ -121,58 +121,129 @@ function loadDashboardData() {
 }
 
 // Adiciona cards funcionais ao dashboard
-function addDashboardCards() {
+async function addDashboardCards() {
     const dashboard = document.getElementById('dashboard');
     
-    const cardsHTML = `
-        <div class="card">
-            <h2>💰 Preços de Commodities</h2>
-            <p>Soja (CME): <span class="price">$11.50/bushel</span></p>
-            <p>Prêmio Paranaguá: <span class="price">+$0.80</span></p>
-            <p>USD/BRL: <span class="price">R$ 5,45</span></p>
-            <div class="price-result">
-                <strong>Preço Local: R$ 182,50/saca</strong>
-            </div>
-        </div>
-        
-        <div class="card">
-            <h2>🌤️ Previsão Climática</h2>
-            <p>Região: Centro-Oeste</p>
-            <p>Próximos 7 dias: <span class="weather">Chuvas moderadas</span></p>
-            <p>Impacto na safra: <span class="impact positive">Positivo</span></p>
-        </div>
-        
-        <div class="card">
-            <h2>📊 Conversão de Métricas</h2>
-            <div class="converter">
-                <input type="number" id="inputValue" placeholder="Quantidade" />
-                <select id="fromUnit">
-                    <option value="saca">Sacas</option>
-                    <option value="tonelada">Toneladas</option>
-                    <option value="bushel">Bushels</option>
-                </select>
-                <span>→</span>
-                <select id="toUnit">
-                    <option value="tonelada">Toneladas</option>
-                    <option value="saca">Sacas</option>
-                    <option value="bushel">Bushels</option>
-                </select>
-                <div id="conversionResult"></div>
-            </div>
-        </div>
-        
-        <div class="card">
-            <h2>🔗 Sua Carteira</h2>
-            <p>Endereço: <span class="wallet-address">${currentAccount}</span></p>
-            <p>Rede: Ethereum Mainnet</p>
-            <button class="btn-secondary" onclick="copyAddress()">Copiar Endereço</button>
+    // Mostra loading
+    dashboard.innerHTML = `
+        <div class="card main-card">
+            <h2>🔄 Carregando dados do mercado...</h2>
+            <p>Buscando cotações em tempo real...</p>
         </div>
     `;
     
-    dashboard.innerHTML = cardsHTML;
-    
-    // Adiciona funcionalidade ao conversor
-    setupConverter();
+    try {
+        // Busca dados das APIs
+        const [localPrice, commodities, weather, exchange] = await Promise.all([
+            window.marketAPI.calculateLocalSoybeanPrice(),
+            window.marketAPI.getCommodityPrices(),
+            window.marketAPI.getWeatherData(),
+            window.marketAPI.getUSDToBRL()
+        ]);
+
+        const cardsHTML = `
+            <div class="card">
+                <h2>💰 Preços de Commodities</h2>
+                ${commodities ? `
+                    <p>Soja (CME): <span class="price">$${commodities.soybean.price}/bushel</span> 
+                       <span class="change ${commodities.soybean.change >= 0 ? 'positive' : 'negative'}">
+                           ${commodities.soybean.change >= 0 ? '+' : ''}${commodities.soybean.change}%
+                       </span>
+                    </p>
+                    <p>Milho (CME): <span class="price">$${commodities.corn.price}/bushel</span>
+                       <span class="change ${commodities.corn.change >= 0 ? 'positive' : 'negative'}">
+                           ${commodities.corn.change >= 0 ? '+' : ''}${commodities.corn.change}%
+                       </span>
+                    </p>
+                ` : '<p>Erro ao carregar dados de commodities</p>'}
+                <p>USD/BRL: <span class="price">R$ ${exchange ? exchange.rate.toFixed(2) : '5.45'}</span></p>
+                ${localPrice ? `
+                    <div class="price-result">
+                        <strong>Preço Local Soja: R$ ${localPrice.localPrice.toFixed(2)}/saca</strong>
+                        <small>Atualizado: ${new Date(localPrice.lastUpdate).toLocaleTimeString('pt-BR')}</small>
+                    </div>
+                ` : '<div class="price-result"><strong>Erro no cálculo do preço local</strong></div>'}
+            </div>
+            
+            <div class="card">
+                <h2>🌤️ Inteligência Climática</h2>
+                ${weather ? `
+                    <p>Região: <span class="region">${weather.region.charAt(0).toUpperCase() + weather.region.slice(1)}</span></p>
+                    <p>Condição atual: <span class="weather">${weather.current.condition}</span></p>
+                    <p>Temperatura: <span class="temp">${weather.current.temperature}°C</span></p>
+                    <p>Próximos 7 dias: <span class="forecast">${weather.forecast.next7days}</span></p>
+                    <p>Impacto na safra: <span class="impact ${weather.forecast.cropImpact.includes('positivo') ? 'positive' : weather.forecast.cropImpact.includes('negativo') ? 'negative' : 'neutral'}">${weather.forecast.cropImpact}</span></p>
+                    <small>Atualizado: ${new Date(weather.lastUpdate).toLocaleTimeString('pt-BR')}</small>
+                ` : '<p>Erro ao carregar dados climáticos</p>'}
+            </div>
+            
+            <div class="card">
+                <h2>📊 Conversão de Métricas</h2>
+                <div class="converter">
+                    <input type="number" id="inputValue" placeholder="Quantidade" />
+                    <select id="fromUnit">
+                        <option value="saca">Sacas</option>
+                        <option value="tonelada">Toneladas</option>
+                        <option value="bushel">Bushels</option>
+                    </select>
+                    <span>→</span>
+                    <select id="toUnit">
+                        <option value="tonelada">Toneladas</option>
+                        <option value="saca">Sacas</option>
+                        <option value="bushel">Bushels</option>
+                    </select>
+                    <div id="conversionResult"></div>
+                </div>
+                <div class="conversion-rates">
+                    <small>
+                        <strong>Taxas de conversão:</strong><br>
+                        1 saca = 60kg | 1 tonelada = 16.67 sacas | 1 bushel = 27.2kg
+                    </small>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2>🔗 Sua Carteira Web3</h2>
+                <p>Endereço: <span class="wallet-address">${currentAccount}</span></p>
+                <p>Rede: <span class="network">Ethereum Mainnet</span></p>
+                <button class="btn-secondary" onclick="copyAddress()">📋 Copiar Endereço</button>
+                <button class="btn-secondary" onclick="refreshData()" style="margin-left: 10px;">🔄 Atualizar Dados</button>
+            </div>
+            
+            <div class="card">
+                <h2>📈 Análise de Mercado</h2>
+                ${commodities ? `
+                    <p>Volume Soja: <span class="volume">${commodities.soybean.volume.toLocaleString()} contratos</span></p>
+                    <p>Volume Milho: <span class="volume">${commodities.corn.volume.toLocaleString()} contratos</span></p>
+                    <div class="market-summary">
+                        <strong>Resumo:</strong> 
+                        ${commodities.soybean.change >= 0 ? 
+                            'Mercado em alta, condições favoráveis para vendas.' : 
+                            'Mercado em baixa, considere aguardar melhores preços.'
+                        }
+                    </div>
+                ` : '<p>Dados de análise indisponíveis</p>'}
+            </div>
+        `;
+        
+        dashboard.innerHTML = cardsHTML;
+        
+        // Adiciona funcionalidade ao conversor
+        setupConverter();
+        
+        showNotification('Dados atualizados com sucesso!', 'success');
+        
+    } catch (error) {
+        console.error('Erro ao carregar dados:', error);
+        dashboard.innerHTML = `
+            <div class="card main-card">
+                <h2>❌ Erro ao carregar dados</h2>
+                <p>Não foi possível conectar com as APIs de mercado. Tente novamente em alguns instantes.</p>
+                <button class="btn-primary" onclick="loadDashboardData()">🔄 Tentar Novamente</button>
+            </div>
+        `;
+        showNotification('Erro ao carregar dados do mercado', 'error');
+    }
 }
 
 // Configura o conversor de métricas
@@ -260,5 +331,19 @@ function showNotification(message, type = 'info') {
     setTimeout(() => {
         notification.remove();
     }, 3000);
+}
+
+
+// Função para atualizar dados manualmente
+async function refreshData() {
+    showNotification('Atualizando dados...', 'info');
+    
+    // Limpa o cache para forçar nova busca
+    if (window.marketAPI) {
+        window.marketAPI.cache.clear();
+    }
+    
+    // Recarrega os dados do dashboard
+    await addDashboardCards();
 }
 
