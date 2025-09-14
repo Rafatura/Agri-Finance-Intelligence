@@ -177,28 +177,90 @@ async function addDashboardCards() {
                 ` : '<p>Erro ao carregar dados climáticos</p>'}
             </div>
             
-            <div class="card">
-                <h2>📊 Conversão de Métricas</h2>
-                <div class="converter">
-                    <input type="number" id="inputValue" placeholder="Quantidade" />
-                    <select id="fromUnit">
-                        <option value="saca">Sacas</option>
-                        <option value="tonelada">Toneladas</option>
-                        <option value="bushel">Bushels</option>
-                    </select>
-                    <span>→</span>
-                    <select id="toUnit">
-                        <option value="tonelada">Toneladas</option>
-                        <option value="saca">Sacas</option>
-                        <option value="bushel">Bushels</option>
-                    </select>
-                    <div id="conversionResult"></div>
+            <div class="card converter-card">
+                <h2>📊 Sistema de Conversão Avançado</h2>
+                <div class="converter-tabs">
+                    <button class="tab-btn active" onclick="switchTab('basic')">Conversão Básica</button>
+                    <button class="tab-btn" onclick="switchTab('barter')">Simulador Barter</button>
+                    <button class="tab-btn" onclick="switchTab('productivity')">Produtividade</button>
                 </div>
-                <div class="conversion-rates">
-                    <small>
-                        <strong>Taxas de conversão:</strong><br>
-                        1 saca = 60kg | 1 tonelada = 16.67 sacas | 1 bushel = 27.2kg
-                    </small>
+                
+                <!-- Conversão Básica -->
+                <div id="basic-tab" class="tab-content active">
+                    <div class="converter">
+                        <select id="commodity">
+                            <option value="soja">Soja</option>
+                            <option value="milho">Milho</option>
+                            <option value="trigo">Trigo</option>
+                            <option value="cafe">Café</option>
+                            <option value="acucar">Açúcar</option>
+                        </select>
+                        <input type="number" id="inputValue" placeholder="Quantidade" />
+                        <select id="fromUnit">
+                            <option value="saca">Sacas</option>
+                            <option value="tonelada">Toneladas</option>
+                            <option value="bushel">Bushels</option>
+                            <option value="arroba">Arrobas</option>
+                            <option value="kg">Quilos</option>
+                        </select>
+                        <span>→</span>
+                        <select id="toUnit">
+                            <option value="tonelada">Toneladas</option>
+                            <option value="saca">Sacas</option>
+                            <option value="bushel">Bushels</option>
+                            <option value="arroba">Arrobas</option>
+                            <option value="kg">Quilos</option>
+                        </select>
+                        <div id="conversionResult"></div>
+                        <div id="valueResult"></div>
+                    </div>
+                </div>
+                
+                <!-- Simulador Barter -->
+                <div id="barter-tab" class="tab-content">
+                    <div class="barter-simulator">
+                        <div class="barter-section">
+                            <h4>Dar:</h4>
+                            <input type="number" id="barterGiveQty" placeholder="Quantidade" />
+                            <select id="barterGiveUnit">
+                                <option value="saca">Sacas</option>
+                                <option value="tonelada">Toneladas</option>
+                            </select>
+                            <select id="barterGiveCommodity">
+                                <option value="soja">Soja</option>
+                                <option value="milho">Milho</option>
+                                <option value="trigo">Trigo</option>
+                            </select>
+                        </div>
+                        <div class="barter-arrow">⇄</div>
+                        <div class="barter-section">
+                            <h4>Receber:</h4>
+                            <select id="barterReceiveCommodity">
+                                <option value="milho">Milho</option>
+                                <option value="soja">Soja</option>
+                                <option value="trigo">Trigo</option>
+                            </select>
+                        </div>
+                        <div id="barterResult"></div>
+                    </div>
+                </div>
+                
+                <!-- Calculadora de Produtividade -->
+                <div id="productivity-tab" class="tab-content">
+                    <div class="productivity-calculator">
+                        <input type="number" id="prodArea" placeholder="Área (hectares)" />
+                        <input type="number" id="prodQuantity" placeholder="Produção" />
+                        <select id="prodUnit">
+                            <option value="saca">Sacas</option>
+                            <option value="tonelada">Toneladas</option>
+                        </select>
+                        <select id="prodCommodity">
+                            <option value="soja">Soja</option>
+                            <option value="milho">Milho</option>
+                            <option value="trigo">Trigo</option>
+                        </select>
+                        <div id="productivityResult"></div>
+                    </div>
                 </div>
             </div>
             
@@ -246,51 +308,171 @@ async function addDashboardCards() {
     }
 }
 
-// Configura o conversor de métricas
+// Configura o sistema avançado de conversão
 function setupConverter() {
+    // Atualiza preços no sistema de métricas
+    if (window.agriMetrics && window.marketAPI) {
+        window.marketAPI.calculateLocalSoybeanPrice().then(localPrice => {
+            if (localPrice) {
+                window.agriMetrics.updatePrices({ localPrice });
+            }
+        });
+    }
+
+    // Conversão básica
     const inputValue = document.getElementById('inputValue');
+    const commodity = document.getElementById('commodity');
     const fromUnit = document.getElementById('fromUnit');
     const toUnit = document.getElementById('toUnit');
-    const result = document.getElementById('conversionResult');
-    
-    function convert() {
+    const conversionResult = document.getElementById('conversionResult');
+    const valueResult = document.getElementById('valueResult');
+
+    function performBasicConversion() {
         const value = parseFloat(inputValue.value);
         if (isNaN(value) || value <= 0) {
-            result.textContent = '';
+            conversionResult.textContent = '';
+            valueResult.textContent = '';
             return;
         }
-        
-        const from = fromUnit.value;
-        const to = toUnit.value;
-        
-        // Conversões básicas (valores aproximados)
-        const conversions = {
-            'saca_to_tonelada': 0.06,
-            'tonelada_to_saca': 16.67,
-            'saca_to_bushel': 2.20,
-            'bushel_to_saca': 0.45,
-            'tonelada_to_bushel': 36.74,
-            'bushel_to_tonelada': 0.027
-        };
-        
-        let convertedValue;
-        const conversionKey = `${from}_to_${to}`;
-        
-        if (from === to) {
-            convertedValue = value;
-        } else if (conversions[conversionKey]) {
-            convertedValue = value * conversions[conversionKey];
-        } else {
-            result.textContent = 'Conversão não disponível';
-            return;
+
+        try {
+            const conversion = window.agriMetrics.convert(
+                value, 
+                fromUnit.value, 
+                toUnit.value, 
+                commodity.value
+            );
+            
+            conversionResult.textContent = `= ${conversion.value} ${conversion.toUnit}`;
+            
+            // Calcula valor financeiro
+            const financialValue = window.agriMetrics.calculateValue(
+                value, 
+                fromUnit.value, 
+                commodity.value
+            );
+            
+            valueResult.innerHTML = `
+                <div class="financial-result">
+                    <strong>Valor: R$ ${financialValue.totalValue.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</strong>
+                    <small>(${financialValue.quantity.toFixed(2)} sacas × R$ ${financialValue.pricePerSaca})</small>
+                </div>
+            `;
+        } catch (error) {
+            conversionResult.textContent = 'Erro na conversão';
+            valueResult.textContent = '';
         }
-        
-        result.textContent = `= ${convertedValue.toFixed(2)} ${to}`;
     }
+
+    if (inputValue) inputValue.addEventListener('input', performBasicConversion);
+    if (commodity) commodity.addEventListener('change', performBasicConversion);
+    if (fromUnit) fromUnit.addEventListener('change', performBasicConversion);
+    if (toUnit) toUnit.addEventListener('change', performBasicConversion);
+
+    // Simulador Barter
+    const barterGiveQty = document.getElementById('barterGiveQty');
+    const barterGiveUnit = document.getElementById('barterGiveUnit');
+    const barterGiveCommodity = document.getElementById('barterGiveCommodity');
+    const barterReceiveCommodity = document.getElementById('barterReceiveCommodity');
+    const barterResult = document.getElementById('barterResult');
+
+    function performBarterCalculation() {
+        const qty = parseFloat(barterGiveQty.value);
+        if (isNaN(qty) || qty <= 0) {
+            barterResult.textContent = '';
+            return;
+        }
+
+        try {
+            const barter = window.agriMetrics.calculateBarter(
+                qty,
+                barterGiveUnit.value,
+                barterGiveCommodity.value,
+                barterReceiveCommodity.value
+            );
+
+            barterResult.innerHTML = `
+                <div class="barter-result">
+                    <p><strong>Você receberia:</strong></p>
+                    <p class="barter-receive">${barter.receive.quantity} sacas de ${barter.receive.commodity}</p>
+                    <p><strong>Taxa de câmbio:</strong></p>
+                    <small>${barter.exchangeRate}</small>
+                    <p><strong>Valor da operação:</strong> R$ ${barter.give.value.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</p>
+                </div>
+            `;
+        } catch (error) {
+            barterResult.textContent = 'Erro no cálculo de barter';
+        }
+    }
+
+    if (barterGiveQty) barterGiveQty.addEventListener('input', performBarterCalculation);
+    if (barterGiveUnit) barterGiveUnit.addEventListener('change', performBarterCalculation);
+    if (barterGiveCommodity) barterGiveCommodity.addEventListener('change', performBarterCalculation);
+    if (barterReceiveCommodity) barterReceiveCommodity.addEventListener('change', performBarterCalculation);
+
+    // Calculadora de Produtividade
+    const prodArea = document.getElementById('prodArea');
+    const prodQuantity = document.getElementById('prodQuantity');
+    const prodUnit = document.getElementById('prodUnit');
+    const prodCommodity = document.getElementById('prodCommodity');
+    const productivityResult = document.getElementById('productivityResult');
+
+    function performProductivityCalculation() {
+        const area = parseFloat(prodArea.value);
+        const quantity = parseFloat(prodQuantity.value);
+        
+        if (isNaN(area) || isNaN(quantity) || area <= 0 || quantity <= 0) {
+            productivityResult.textContent = '';
+            return;
+        }
+
+        try {
+            const productivity = window.agriMetrics.calculateProductivity(
+                area,
+                quantity,
+                prodUnit.value,
+                prodCommodity.value
+            );
+
+            const performanceColor = {
+                'excelente': '#00ff80',
+                'boa': '#4fc3f7',
+                'média': '#ff9800',
+                'baixa': '#ff6b6b'
+            };
+
+            productivityResult.innerHTML = `
+                <div class="productivity-result">
+                    <p><strong>Produtividade:</strong> <span style="color: ${performanceColor[productivity.performance]}">${productivity.productivity} sacas/ha</span></p>
+                    <p><strong>Performance:</strong> <span style="color: ${performanceColor[productivity.performance]}">${productivity.performance.toUpperCase()}</span></p>
+                    <div class="benchmark">
+                        <small>
+                            <strong>Benchmark ${productivity.commodity}:</strong><br>
+                            Mínimo: ${productivity.benchmark.min} | Média: ${productivity.benchmark.avg} | Máximo: ${productivity.benchmark.max} sacas/ha
+                        </small>
+                    </div>
+                </div>
+            `;
+        } catch (error) {
+            productivityResult.textContent = 'Erro no cálculo de produtividade';
+        }
+    }
+
+    if (prodArea) prodArea.addEventListener('input', performProductivityCalculation);
+    if (prodQuantity) prodQuantity.addEventListener('input', performProductivityCalculation);
+    if (prodUnit) prodUnit.addEventListener('change', performProductivityCalculation);
+    if (prodCommodity) prodCommodity.addEventListener('change', performProductivityCalculation);
+}
+
+// Função para alternar entre abas
+function switchTab(tabName) {
+    // Remove active de todas as abas
+    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
     
-    inputValue.addEventListener('input', convert);
-    fromUnit.addEventListener('change', convert);
-    toUnit.addEventListener('change', convert);
+    // Ativa a aba selecionada
+    document.querySelector(`[onclick="switchTab('${tabName}')"]`).classList.add('active');
+    document.getElementById(`${tabName}-tab`).classList.add('active');
 }
 
 // Copia o endereço da carteira
