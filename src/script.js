@@ -485,18 +485,102 @@ function copyAddress() {
 }
 
 // Reseta o dashboard para o estado inicial
-function resetDashboard() {
-    const dashboard = document.getElementById('dashboard');
-    dashboard.innerHTML = `
-        <div class="card main-card">
-            <h2>Bem-vindo à Agri Finance Intelligence</h2>
-            <p>Conecte sua carteira para acessar insights exclusivos do agronegócio.</p>
-        </div>
-    `;
-}
-
-// Sistema de notificações
-function showNotification(message, type = 'info') {
+fun        <section id="dashboard" class="dashboard-grid container">
+            <!-- Cards do painel serão injetados aqui -->
+            <div class="card main-card">
+                <h2>Bem-vindo à Agri Finance Intelligence</h2>
+                <p>Conecte sua carteira para acessar insights exclusivos do agronegócio.</p>
+                <p><small>Experimente o conversor de métricas abaixo mesmo sem conectar a carteira!</small></p>
+            </div>
+            
+            <!-- Conversor sempre disponível -->
+            <div class="card converter-card">
+                <h2>📊 Sistema de Conversão de Métricas</h2>
+                <div class="converter-tabs">
+                    <button class="tab-btn active" onclick="switchTab('basic')">Conversão Básica</button>
+                    <button class="tab-btn" onclick="switchTab('barter')">Simulador Barter</button>
+                    <button class="tab-btn" onclick="switchTab('productivity')">Produtividade</button>
+                </div>
+                
+                <!-- Conversão Básica -->
+                <div id="basic-tab" class="tab-content active">
+                    <div class="converter">
+                        <select id="commodity">
+                            <option value="soja">Soja</option>
+                            <option value="milho">Milho</option>
+                            <option value="trigo">Trigo</option>
+                            <option value="cafe">Café</option>
+                            <option value="acucar">Açúcar</option>
+                        </select>
+                        <input type="number" id="inputValue" placeholder="Quantidade" />
+                        <select id="fromUnit">
+                            <option value="saca">Sacas</option>
+                            <option value="tonelada">Toneladas</option>
+                            <option value="bushel">Bushels</option>
+                            <option value="arroba">Arrobas</option>
+                            <option value="kg">Quilos</option>
+                        </select>
+                        <span>→</span>
+                        <select id="toUnit">
+                            <option value="tonelada">Toneladas</option>
+                            <option value="saca">Sacas</option>
+                            <option value="bushel">Bushels</option>
+                            <option value="arroba">Arrobas</option>
+                            <option value="kg">Quilos</option>
+                        </select>
+                        <div id="conversionResult"></div>
+                        <div id="valueResult"></div>
+                    </div>
+                </div>
+                
+                <!-- Simulador Barter -->
+                <div id="barter-tab" class="tab-content">
+                    <div class="barter-simulator">
+                        <div class="barter-section">
+                            <h4>Dar:</h4>
+                            <input type="number" id="barterGiveQty" placeholder="Quantidade" />
+                            <select id="barterGiveUnit">
+                                <option value="saca">Sacas</option>
+                                <option value="tonelada">Toneladas</option>
+                            </select>
+                            <select id="barterGiveCommodity">
+                                <option value="soja">Soja</option>
+                                <option value="milho">Milho</option>
+                                <option value="trigo">Trigo</option>
+                            </select>
+                        </div>
+                        <div class="barter-arrow">⇄</div>
+                        <div class="barter-section">
+                            <h4>Receber:</h4>
+                            <select id="barterReceiveCommodity">
+                                <option value="milho">Milho</option>
+                                <option value="soja">Soja</option>
+                                <option value="trigo">Trigo</option>
+                            </select>
+                        </div>
+                        <div id="barterResult"></div>
+                    </div>
+                </div>
+                
+                <!-- Calculadora de Produtividade -->
+                <div id="productivity-tab" class="tab-content">
+                    <div class="productivity-calculator">
+                        <input type="number" id="prodArea" placeholder="Área (hectares)" />
+                        <input type="number" id="prodQuantity" placeholder="Produção" />
+                        <select id="prodUnit">
+                            <option value="saca">Sacas</option>
+                            <option value="tonelada">Toneladas</option>
+                        </select>
+                        <select id="prodCommodity">
+                            <option value="soja">Soja</option>
+                            <option value="milho">Milho</option>
+                            <option value="trigo">Trigo</option>
+                        </select>
+                        <div id="productivityResult"></div>
+                    </div>
+                </div>
+            </div>
+        </section> showNotification(message, type = 'info') {
     // Remove notificação existente
     const existingNotification = document.querySelector('.notification');
     if (existingNotification) {
