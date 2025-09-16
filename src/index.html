@@ -15,108 +15,87 @@
     <header>
         <div class="container">
             <h1 class="logo">Agri Finance Intelligence</h1>
-            <nav>
-                <button id="connectWalletBtn" class="btn-primary">Conectar Carteira</button>
+            <nav id="mainNav">
+                <!-- Navegação será injetada aqui baseada no estado de login -->
             </nav>
         </div>
     </header>
 
-    <main>
-        <section id="dashboard" class="dashboard-grid container">
-            <!-- Cards do painel serão injetados aqui -->
-            <div class="card main-card">
-                <h2>Bem-vindo à Agri Finance Intelligence</h2>
-                <p>Conecte sua carteira para acessar insights exclusivos do agronegócio.</p>
-                <p><small>Experimente o conversor de métricas abaixo mesmo sem conectar a carteira!</small></p>
-            </div>
+    <!-- Modal de Login/Cadastro -->
+    <div id="authModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
             
-            <!-- Conversor sempre disponível -->
-            <div class="card converter-card">
-                <h2>📊 Sistema de Conversão de Métricas</h2>
-                <div class="converter-tabs">
-                    <button class="tab-btn active" onclick="switchTab('basic')">Conversão Básica</button>
-                    <button class="tab-btn" onclick="switchTab('barter')">Simulador Barter</button>
-                    <button class="tab-btn" onclick="switchTab('productivity')">Produtividade</button>
+            <!-- Abas de Login/Cadastro -->
+            <div class="auth-tabs">
+                <button class="auth-tab-btn active" onclick="switchAuthTab('login')">Login</button>
+                <button class="auth-tab-btn" onclick="switchAuthTab('register')">Cadastro</button>
+            </div>
+
+            <!-- Formulário de Login -->
+            <div id="loginForm" class="auth-form active">
+                <h2>Entrar na Plataforma</h2>
+                <form onsubmit="handleLogin(event)">
+                    <input type="email" id="loginEmail" placeholder="E-mail" required>
+                    <input type="password" id="loginPassword" placeholder="Senha" required>
+                    <button type="submit" class="btn-primary">Entrar</button>
+                </form>
+                <div class="demo-credentials">
+                    <p><strong>Credenciais de Demo:</strong></p>
+                    <p>E-mail: demo@agrifinance.com</p>
+                    <p>Senha: 123456</p>
                 </div>
-                
-                <!-- Conversão Básica -->
-                <div id="basic-tab" class="tab-content active">
-                    <div class="converter">
-                        <select id="commodity">
-                            <option value="soja">Soja</option>
-                            <option value="milho">Milho</option>
-                            <option value="trigo">Trigo</option>
-                            <option value="cafe">Café</option>
-                            <option value="acucar">Açúcar</option>
-                        </select>
-                        <input type="number" id="inputValue" placeholder="Quantidade" />
-                        <select id="fromUnit">
-                            <option value="saca">Sacas</option>
-                            <option value="tonelada">Toneladas</option>
-                            <option value="bushel">Bushels</option>
-                            <option value="arroba">Arrobas</option>
-                            <option value="kg">Quilos</option>
-                        </select>
-                        <span>→</span>
-                        <select id="toUnit">
-                            <option value="tonelada">Toneladas</option>
-                            <option value="saca">Sacas</option>
-                            <option value="bushel">Bushels</option>
-                            <option value="arroba">Arrobas</option>
-                            <option value="kg">Quilos</option>
-                        </select>
-                        <div id="conversionResult"></div>
-                        <div id="valueResult"></div>
-                    </div>
-                </div>
-                
-                <!-- Simulador Barter -->
-                <div id="barter-tab" class="tab-content">
-                    <div class="barter-simulator">
-                        <div class="barter-section">
-                            <h4>Dar:</h4>
-                            <input type="number" id="barterGiveQty" placeholder="Quantidade" />
-                            <select id="barterGiveUnit">
-                                <option value="saca">Sacas</option>
-                                <option value="tonelada">Toneladas</option>
-                            </select>
-                            <select id="barterGiveCommodity">
-                                <option value="soja">Soja</option>
-                                <option value="milho">Milho</option>
-                                <option value="trigo">Trigo</option>
-                            </select>
+            </div>
+
+            <!-- Formulário de Cadastro -->
+            <div id="registerForm" class="auth-form">
+                <h2>Criar Conta</h2>
+                <form onsubmit="handleRegister(event)">
+                    <input type="text" id="registerName" placeholder="Nome completo" required>
+                    <input type="email" id="registerEmail" placeholder="E-mail" required>
+                    <input type="password" id="registerPassword" placeholder="Senha (mín. 6 caracteres)" required>
+                    <button type="submit" class="btn-primary">Criar Conta</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <main>
+        <!-- Tela de Boas-vindas (antes do login) -->
+        <section id="welcomeScreen" class="welcome-screen">
+            <div class="container">
+                <div class="welcome-content">
+                    <h1>Bem-vindo à Agri Finance Intelligence</h1>
+                    <p>A plataforma mais avançada de inteligência de mercado para o agronegócio brasileiro.</p>
+                    <div class="features-grid">
+                        <div class="feature">
+                            <h3>📊 Cotações em Tempo Real</h3>
+                            <p>Futuros CME, prêmios de portos, câmbio USD/BRL</p>
                         </div>
-                        <div class="barter-arrow">⇄</div>
-                        <div class="barter-section">
-                            <h4>Receber:</h4>
-                            <select id="barterReceiveCommodity">
-                                <option value="milho">Milho</option>
-                                <option value="soja">Soja</option>
-                                <option value="trigo">Trigo</option>
-                            </select>
+                        <div class="feature">
+                            <h3>🌤️ IA Climática</h3>
+                            <p>Previsões meteorológicas com impacto na safra</p>
                         </div>
-                        <div id="barterResult"></div>
+                        <div class="feature">
+                            <h3>🔄 Conversores Avançados</h3>
+                            <p>Métricas, barter e produtividade</p>
+                        </div>
+                        <div class="feature">
+                            <h3>🔗 Web3 Opcional</h3>
+                            <p>Conecte sua carteira para recursos premium</p>
+                        </div>
                     </div>
-                </div>
-                
-                <!-- Calculadora de Produtividade -->
-                <div id="productivity-tab" class="tab-content">
-                    <div class="productivity-calculator">
-                        <input type="number" id="prodArea" placeholder="Área (hectares)" />
-                        <input type="number" id="prodQuantity" placeholder="Produção" />
-                        <select id="prodUnit">
-                            <option value="saca">Sacas</option>
-                            <option value="tonelada">Toneladas</option>
-                        </select>
-                        <select id="prodCommodity">
-                            <option value="soja">Soja</option>
-                            <option value="milho">Milho</option>
-                            <option value="trigo">Trigo</option>
-                        </select>
-                        <div id="productivityResult"></div>
+                    <div class="cta-buttons">
+                        <button class="btn-primary" onclick="openAuthModal('register')">Começar Grátis</button>
+                        <button class="btn-secondary" onclick="openAuthModal('login')">Já tenho conta</button>
                     </div>
                 </div>
             </div>
+        </section>
+
+        <!-- Dashboard (após login) -->
+        <section id="dashboard" class="dashboard-grid container" style="display: none;">
+            <!-- Cards do painel serão injetados aqui -->
         </section>
     </main>
 
@@ -127,6 +106,7 @@
     </footer>
 
     <!-- Scripts -->
+    <script src="auth.js"></script>
     <script src="api.js"></script>
     <script src="metrics.js"></script>
     <script src="script.js"></script>

@@ -586,3 +586,267 @@ small {
     }
 }
 
+
+/* Estilos para sistema de autenticação */
+
+/* Tela de boas-vindas */
+.welcome-screen {
+    min-height: 80vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 40px 0;
+}
+
+.welcome-content h1 {
+    font-size: 3em;
+    margin-bottom: 20px;
+    background: linear-gradient(135deg, var(--primary-color), #4fc3f7);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.welcome-content > p {
+    font-size: 1.2em;
+    margin-bottom: 40px;
+    color: #cccccc;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 30px;
+    margin: 40px 0;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.feature {
+    background-color: var(--secondary-color);
+    padding: 30px 20px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    transition: transform 0.3s ease, border-color 0.3s ease;
+}
+
+.feature:hover {
+    transform: translateY(-5px);
+    border-color: var(--primary-color);
+}
+
+.feature h3 {
+    color: var(--primary-color);
+    margin-bottom: 15px;
+    font-size: 1.1em;
+}
+
+.feature p {
+    color: #cccccc;
+    font-size: 0.9em;
+    line-height: 1.5;
+}
+
+.cta-buttons {
+    margin-top: 40px;
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+/* Modal de autenticação */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(5px);
+}
+
+.modal-content {
+    background-color: var(--secondary-color);
+    margin: 5% auto;
+    padding: 0;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    width: 90%;
+    max-width: 450px;
+    position: relative;
+    animation: modalSlideIn 0.3s ease;
+}
+
+@keyframes modalSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    position: absolute;
+    right: 15px;
+    top: 10px;
+    cursor: pointer;
+    z-index: 1001;
+}
+
+.close:hover,
+.close:focus {
+    color: var(--primary-color);
+}
+
+/* Abas de autenticação */
+.auth-tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.auth-tab-btn {
+    flex: 1;
+    background: none;
+    border: none;
+    color: var(--text-color);
+    padding: 15px;
+    cursor: pointer;
+    font-size: 1em;
+    border-bottom: 2px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.auth-tab-btn:hover {
+    color: var(--primary-color);
+}
+
+.auth-tab-btn.active {
+    color: var(--primary-color);
+    border-bottom-color: var(--primary-color);
+}
+
+/* Formulários de autenticação */
+.auth-form {
+    display: none;
+    padding: 30px;
+}
+
+.auth-form.active {
+    display: block;
+}
+
+.auth-form h2 {
+    text-align: center;
+    margin-bottom: 25px;
+    color: var(--primary-color);
+}
+
+.auth-form input {
+    width: 100%;
+    padding: 12px 15px;
+    margin-bottom: 15px;
+    background-color: var(--bg-color);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    color: var(--text-color);
+    font-size: 1em;
+    box-sizing: border-box;
+}
+
+.auth-form input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 5px rgba(0, 255, 128, 0.3);
+}
+
+.auth-form button {
+    width: 100%;
+    margin-top: 10px;
+}
+
+.demo-credentials {
+    margin-top: 20px;
+    padding: 15px;
+    background-color: var(--bg-color);
+    border-radius: 6px;
+    border-left: 3px solid var(--primary-color);
+}
+
+.demo-credentials p {
+    margin: 5px 0;
+    font-size: 0.9em;
+    color: #cccccc;
+}
+
+.demo-credentials strong {
+    color: var(--primary-color);
+}
+
+/* Navegação dinâmica */
+.nav-user {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.user-info {
+    color: var(--text-color);
+    font-size: 0.9em;
+}
+
+.user-name {
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+.nav-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+/* Responsividade para autenticação */
+@media (max-width: 768px) {
+    .welcome-content h1 {
+        font-size: 2.2em;
+    }
+    
+    .features-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    .cta-buttons {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .cta-buttons button {
+        width: 100%;
+        max-width: 300px;
+    }
+    
+    .modal-content {
+        margin: 10% auto;
+        width: 95%;
+    }
+    
+    .auth-form {
+        padding: 20px;
+    }
+}
+
